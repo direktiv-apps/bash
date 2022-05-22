@@ -1,0 +1,193 @@
+swagger: "2.0"
+info:
+  description: Simple bash function.
+  title: bash
+  version: "1.0"
+  x-direktiv-meta:
+    container: direktiv/bash
+    maintainer: |-
+      [direktiv.io](https://www.direktiv.io)
+    issues: https://github.com/direktiv-apps/bash/issues
+    url: https://github.com/direktiv-apps/bash 
+    category: Unknown
+    license: |-
+      [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
+    long-description: The bash function is providing bash with pre-installed packages like jq, yq, curl, git and more.
+consumes:
+- application/json
+produces:
+- application/json
+schemes:
+- http
+paths:
+  /: 
+    delete:
+      parameters:
+        - name: Direktiv-ActionID
+          in: header
+          type: string
+          description: |
+            On cancel Direktiv sends a DELETE request to
+            the action with id in the header
+      x-direktiv:
+        cancel: echo 'cancel {{ .DirektivActionID }}'
+      responses:
+        200:
+    post:
+      parameters:
+        - name: Direktiv-ActionID
+          in: header
+          type: string
+          description: |
+            direktiv action id is an UUID. 
+            For development it can be set to 'development'
+        - name: Direktiv-TempDir
+          in: header
+          type: string
+          description: |
+            direktiv temp dir is the working directory for that request
+            For development it can be set to e.g. '/tmp'
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              continue:
+                type: boolean
+                description: If set to true all commands are getting executed and errors ignored.
+                default: false
+                example: true
+              commands:
+                type: array
+                description: Array of bash commands.
+                items:
+                  type: object
+                  properties:
+                    command:
+                      type: string
+                      description: Command to run
+                      example: ls -la
+                    silent: 
+                      type: boolean
+                      description: If set to false the command will not print output to logs.
+                      default: false
+                    print: 
+                      type: boolean
+                      description: If set to false the command will not print the full command with arguments to logs.
+                      default: true
+                    continue: 
+                      type: boolean
+                    envs:
+                      type: array
+                      description: Environment variables set for each command.
+                      example: 
+                      - name: MYVALUE
+                        value: hello
+                      items:
+                        type: object
+                        properties:
+                          name:
+                            description: Name of the variable.
+                            type: string
+                          value:
+                            description: Value of the variable.
+                            type: string         
+      # direktiv code generation is configured here
+      x-direktiv-function: |-
+        functions:
+          - id: bash
+            image: direktiv/bash:1.0
+            type: knative-workflow
+      x-direktiv-examples:
+        - title: Basic
+          content: |-
+            - id: bash 
+                  type: action
+                  action:
+                    function: bash
+                    input: 
+                      commands:
+                      - command: env
+                        envs:
+                        - name: HELLO
+          value: world
+        - title: Return JSON file
+          content: |-
+            - id: bash 
+                  type: action
+                  action:
+                    function: bash
+                    input: 
+                      commands:
+                      - command: 'bash -c "echo { \\\"hello\\\": \\\"world\\\" } > data.json"'
+                      - command: cat data.json
+        - title: Run Script
+          content: |-
+            - id: bash 
+                  type: action
+                  action:
+                    function: bash
+                    files:
+                    - key: run.sh
+                      value: |
+                        #!/bin/bash
+                        echo Hello World
+                      scope: inline
+                    input: 
+                      commands:
+                      - command: ./run.sh
+        - title: Pipe
+          content: |-
+            - id: bash 
+                  type: action
+                  action:
+                    function: bash
+                    input: 
+                      commands:
+                      - command: bash -c 'echo "File Data" > myfile.txt'
+                      - command: cat myfile.txt
+      x-direktiv:  
+        cmds:
+        - action: foreach
+          loop: .Commands
+          exec: '{{ .Item.Command }}'
+          silent: '{{ .Item.Silent }}'
+          print: '{{ .Item.Print }}'
+          continue: '{{ .Body.Continue }}'
+          runtime-envs: |
+            [
+            {{- range $index, $element := .Item.Envs }}
+            {{- if $index}},{{- end}}
+            "{{ $element.Name }}={{ $element.Value }}"
+            {{- end }}
+            ]
+      x-direktiv-errors:
+        io.direktiv.command.error: Command execution failed
+        io.direktiv.output.error: Template error for output generation of the service
+        io.direktiv.ri.error: Can not create information object from request
+      responses:
+        200:
+          description: Returns array of command results. If a command returned JSON it will be included as JSON object.
+          schema:
+            type: object
+            additionalProperties: {}
+        default:
+          description: generic error response
+          headers:
+            Direktiv-ErrorCode:
+              type: string
+            Direktiv-ErrorMessage:
+              type: string
+          schema:
+            $ref: "#/definitions/error"
+definitions:
+  error:
+    type: object
+    required:
+      - errorCode
+      - errorMessage
+    properties:
+      errorCode:
+        type: string
+      errorMessage:
+        type: string
