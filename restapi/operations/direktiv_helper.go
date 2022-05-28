@@ -138,7 +138,6 @@ func runCmd(ctx context.Context, cmdString string, envs []string,
 	cmd.Dir = ri.Dir()
 	cmd.Env = append(os.Environ(), envs...)
 
-	fmt.Printf("PRINT2 %v", print)
 	if print {
 		ri.Logger().Infof("running command %v", cmd)
 	}

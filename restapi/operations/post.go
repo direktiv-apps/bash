@@ -14,6 +14,8 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+
+	"github.com/direktiv/apps/go/pkg/apps"
 )
 
 // PostHandlerFunc turns a function with the right signature into a post handler
@@ -68,9 +70,8 @@ type PostBody struct {
 	// Array of bash commands.
 	Commands []*PostParamsBodyCommandsItems0 `json:"commands"`
 
-	// If set to true all commands are getting executed and errors ignored.
-	// Example: true
-	Continue *bool `json:"continue,omitempty"`
+	// File to create before running commands.
+	Files []apps.DirektivFile `json:"files"`
 }
 
 // Validate validates this post body
@@ -78,6 +79,10 @@ func (o *PostBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.validateCommands(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateFiles(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -113,11 +118,36 @@ func (o *PostBody) validateCommands(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *PostBody) validateFiles(formats strfmt.Registry) error {
+	if swag.IsZero(o.Files) { // not required
+		return nil
+	}
+
+	for i := 0; i < len(o.Files); i++ {
+
+		if err := o.Files[i].Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			}
+			return err
+		}
+
+	}
+
+	return nil
+}
+
 // ContextValidate validate this post body based on the context it is used
 func (o *PostBody) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := o.contextValidateCommands(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.contextValidateFiles(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -140,6 +170,24 @@ func (o *PostBody) contextValidateCommands(ctx context.Context, formats strfmt.R
 				}
 				return err
 			}
+		}
+
+	}
+
+	return nil
+}
+
+func (o *PostBody) contextValidateFiles(ctx context.Context, formats strfmt.Registry) error {
+
+	for i := 0; i < len(o.Files); i++ {
+
+		if err := o.Files[i].ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("body" + "." + "files" + "." + strconv.Itoa(i))
+			}
+			return err
 		}
 
 	}

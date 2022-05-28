@@ -52,11 +52,11 @@ paths:
           schema:
             type: object
             properties:
-              continue:
-                type: boolean
-                description: If set to true all commands are getting executed and errors ignored.
-                default: false
-                example: true
+              files:
+                type: array
+                items:
+                  $ref: '#/definitions/direktivFile'
+                description: File to create before running commands.
               commands:
                 type: array
                 description: Array of bash commands.
@@ -127,13 +127,13 @@ paths:
                   type: action
                   action:
                     function: bash
-                    files:
-                    - key: run.sh
-                      value: |
-                        #!/bin/bash
-                        echo Hello World
-                      scope: inline
                     input: 
+                      files:
+                      - name: run.sh
+                        data: |
+                          #!/bin/bash
+                          echo "HELLO"
+                        mode: "0755"
                       commands:
                       - command: ./run.sh
         - title: Pipe
@@ -153,7 +153,7 @@ paths:
           exec: '{{ .Item.Command }}'
           silent: '{{ .Item.Silent }}'
           print: '{{ .Item.Print }}'
-          continue: '{{ .Body.Continue }}'
+          continue: '{{ .Item.Continue }}'
           runtime-envs: |
             [
             {{- range $index, $element := .Item.Envs }}
@@ -181,6 +181,12 @@ paths:
           schema:
             $ref: "#/definitions/error"
 definitions:
+  direktivFile:
+    type: object
+    x-go-type:
+      type: DirektivFile
+      import:
+        package: github.com/direktiv/apps/go/pkg/apps 
   error:
     type: object
     required:

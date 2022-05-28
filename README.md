@@ -37,7 +37,7 @@ The bash function is providing bash with pre-installed packages like jq, yq, cur
    ```
    #### Return JSON file
    ```yaml
-   - id: getter 
+   - id: bash 
       type: action
       action:
         function: bash
@@ -48,26 +48,30 @@ The bash function is providing bash with pre-installed packages like jq, yq, cur
    ```
    #### Run Script
    ```yaml
-   - id: getter 
+   - id: bash 
       type: action
       action:
         function: bash
-        files:
-        - key: run.sh
-          value: |
-            #!/bin/bash
-            echo Hello World
-          scope: inline
         input: 
+          files:
+          - name: run.sh
+            data: |
+              #!/bin/bash
+              echo "HELLO"
+            mode: "0755"
           commands:
           - command: ./run.sh
    ```
    #### Pipe
    ```yaml
-   - id: req
-    type: action
-    action:
-      function: bash
+   - id: bash 
+      type: action
+      action:
+        function: bash
+        input: 
+          commands:
+          - command: bash -c 'echo "File Data" > myfile.txt'
+          - command: cat myfile.txt
    ```
 
 ### Request
@@ -100,7 +104,7 @@ The bash function is providing bash with pre-installed packages like jq, yq, cur
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | commands | [][PostParamsBodyCommandsItems](#post-params-body-commands-items)| `[]*PostParamsBodyCommandsItems` |  | | Array of bash commands. |  |
-| continue | boolean| `bool` |  | | If set to true all commands are getting executed and errors ignored. | `true` |
+| files | [][DirektivFile](#direktiv-file)| `[]apps.DirektivFile` |  | | File to create before running commands. |  |
 
 
 #### <span id="post-params-body-commands-items"></span> postParamsBodyCommandsItems

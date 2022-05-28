@@ -114,11 +114,12 @@ func init() {
                     }
                   }
                 },
-                "continue": {
-                  "description": "If set to true all commands are getting executed and errors ignored.",
-                  "type": "boolean",
-                  "default": false,
-                  "example": true
+                "files": {
+                  "description": "File to create before running commands.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/direktivFile"
+                  }
                 }
               }
             }
@@ -151,7 +152,7 @@ func init() {
           "cmds": [
             {
               "action": "foreach",
-              "continue": "{{ .Body.Continue }}",
+              "continue": "{{ .Item.Continue }}",
               "exec": "{{ .Item.Command }}",
               "loop": ".Commands",
               "print": "{{ .Item.Print }}",
@@ -167,19 +168,20 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
-            "title": "Basic"
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: env\n            envs:\n            - name: HELLO",
+            "title": "Basic",
+            "value": "world"
           },
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: 'bash -c \"echo { \\\\\\\"hello\\\\\\\": \\\\\\\"world\\\\\\\" } \u003e data.json\"'\n          - command: cat data.json",
             "title": "Return JSON file"
           },
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          files:\n          - name: run.sh\n            data: |\n              #!/bin/bash\n              echo \"HELLO\"\n            mode: \"0755\"\n          commands:\n          - command: ./run.sh",
             "title": "Run Script"
           },
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n          - command: cat myfile.txt",
             "title": "Pipe"
           }
         ],
@@ -206,6 +208,15 @@ func init() {
     }
   },
   "definitions": {
+    "direktivFile": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/direktiv/apps/go/pkg/apps"
+        },
+        "type": "DirektivFile"
+      }
+    },
     "error": {
       "type": "object",
       "required": [
@@ -277,11 +288,12 @@ func init() {
                     "$ref": "#/definitions/CommandsItems0"
                   }
                 },
-                "continue": {
-                  "description": "If set to true all commands are getting executed and errors ignored.",
-                  "type": "boolean",
-                  "default": false,
-                  "example": true
+                "files": {
+                  "description": "File to create before running commands.",
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/direktivFile"
+                  }
                 }
               }
             }
@@ -314,7 +326,7 @@ func init() {
           "cmds": [
             {
               "action": "foreach",
-              "continue": "{{ .Body.Continue }}",
+              "continue": "{{ .Item.Continue }}",
               "exec": "{{ .Item.Command }}",
               "loop": ".Commands",
               "print": "{{ .Item.Print }}",
@@ -330,19 +342,20 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
-            "title": "Basic"
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: env\n            envs:\n            - name: HELLO",
+            "title": "Basic",
+            "value": "world"
           },
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: 'bash -c \"echo { \\\\\\\"hello\\\\\\\": \\\\\\\"world\\\\\\\" } \u003e data.json\"'\n          - command: cat data.json",
             "title": "Return JSON file"
           },
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          files:\n          - name: run.sh\n            data: |\n              #!/bin/bash\n              echo \"HELLO\"\n            mode: \"0755\"\n          commands:\n          - command: ./run.sh",
             "title": "Run Script"
           },
           {
-            "content": "- id: req\n     type: action\n     action:\n       function: bash",
+            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n          - command: cat myfile.txt",
             "title": "Pipe"
           }
         ],
@@ -416,6 +429,15 @@ func init() {
           "description": "Value of the variable.",
           "type": "string"
         }
+      }
+    },
+    "direktivFile": {
+      "type": "object",
+      "x-go-type": {
+        "import": {
+          "package": "github.com/direktiv/apps/go/pkg/apps"
+        },
+        "type": "DirektivFile"
       }
     },
     "error": {

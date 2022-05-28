@@ -3,7 +3,6 @@ package operations
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"sync"
 
 	"github.com/direktiv/apps/go/pkg/apps"
@@ -72,7 +71,7 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	ret, err = runCommand0(ctx, accParams, ri)
 	responses = append(responses, ret)
 
-	cont = convertTemplateToBool("{{ .Body.Continue }}", accParams, true)
+	// if foreach returns an error there is no continue
 
 	if err != nil && !cont {
 		errName := cmdErr
@@ -124,10 +123,9 @@ func runCommand0(ctx context.Context,
 
 		silent := convertTemplateToBool("{{ .Item.Silent }}", ls, false)
 		print := convertTemplateToBool("{{ .Item.Print }}", ls, true)
-		cont := convertTemplateToBool("{{ .Body.Continue }}", ls, false)
+		cont := convertTemplateToBool("{{ .Item.Continue }}", ls, false)
 		output := ""
 
-		fmt.Printf("PRINT1 %v", print)
 		envs := []string{}
 
 		envTempl, err := templateString(`[
