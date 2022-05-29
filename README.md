@@ -4,7 +4,8 @@
 Simple bash function.
 
 ---
-- #### Image: direktiv/bash 
+- #### Categories: scripting
+- #### Image: gcr.io/direktiv/apps/bash 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - #### Issue Tracking: https://github.com/direktiv-apps/bash/issues
 - #### URL: https://github.com/direktiv-apps/bash
@@ -20,7 +21,7 @@ The bash function is providing bash with pre-installed packages like jq, yq, cur
   ```yaml
   functions:
   - id: bash
-    image: direktiv/bash:1.0
+    image: gcr.io/direktiv/apps/bash:1.0
     type: knative-workflow
   ```
    #### Basic

@@ -34,7 +34,7 @@ func init() {
     "version": "1.0",
     "x-direktiv-meta": {
       "category": "Unknown",
-      "container": "direktiv/bash",
+      "container": "gcr.io/direktiv/apps/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "The bash function is providing bash with pre-installed packages like jq, yq, curl, git and more.",
@@ -185,7 +185,7 @@ func init() {
             "title": "Pipe"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: bash\n    image: direktiv/bash:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n  - id: bash\n    image: gcr.io/direktiv/apps/bash:1.0\n    type: knative-workflow"
       },
       "delete": {
         "parameters": [
@@ -251,7 +251,7 @@ func init() {
     "version": "1.0",
     "x-direktiv-meta": {
       "category": "Unknown",
-      "container": "direktiv/bash",
+      "container": "gcr.io/direktiv/apps/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "The bash function is providing bash with pre-installed packages like jq, yq, curl, git and more.",
@@ -359,7 +359,7 @@ func init() {
             "title": "Pipe"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: bash\n    image: direktiv/bash:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n  - id: bash\n    image: gcr.io/direktiv/apps/bash:1.0\n    type: knative-workflow"
       },
       "delete": {
         "parameters": [

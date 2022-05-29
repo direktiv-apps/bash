@@ -82,6 +82,9 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	accParams.Commands = paramsCollector
 
 	responseBytes, err := json.Marshal(responses)
+	if err != nil {
+		return generateError(outErr, err)
+	}
 	err = json.Unmarshal(responseBytes, &resp)
 	if err != nil {
 		return generateError(outErr, err)
