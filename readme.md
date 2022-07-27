@@ -24,6 +24,7 @@ This function provides a Ubuntu 22.04 environment. The following packages are in
 - make 
 - jq 
 - openssh-client
+
 The function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g.  `bash -c 'cd dir && cat file.txt > newfile'`
 
 ### Example(s)
@@ -113,7 +114,13 @@ functions:
 ```json
 [
   {
-    "result": null,
+    "result": "",
+    "success": true
+  },
+  {
+    "result": {
+      "hello": "world"
+    },
     "success": true
   }
 ]
