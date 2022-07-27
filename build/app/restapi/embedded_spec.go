@@ -29,16 +29,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Simple bash function.",
+    "description": "Run bash in Direktiv",
     "title": "bash",
     "version": "1.0",
     "x-direktiv-meta": {
-      "category": "Unknown",
+      "categories": [
+        "unknown"
+      ],
       "container": "gcr.io/direktiv/apps/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "The bash function is providing bash with pre-installed packages like jq, yq, curl, git and more.",
-      "maintainer": "[direktiv.io](https://www.direktiv.io)",
+      "long-description": "Run bash in Direktiv as a function bash -c ubuntu 22.04",
+      "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/bash"
     }
   },
@@ -48,12 +50,14 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "default": "development",
             "description": "direktiv action id is an UUID. \nFor development it can be set to 'development'\n",
             "name": "Direktiv-ActionID",
             "in": "header"
           },
           {
             "type": "string",
+            "default": "/tmp",
             "description": "direktiv temp dir is the working directory for that request\nFor development it can be set to e.g. '/tmp'\n",
             "name": "Direktiv-TempDir",
             "in": "header"
@@ -65,7 +69,7 @@ func init() {
               "type": "object",
               "properties": {
                 "commands": {
-                  "description": "Array of bash commands.",
+                  "description": "Array of commands.",
                   "type": "array",
                   "items": {
                     "type": "object",
@@ -76,6 +80,7 @@ func init() {
                         "example": "ls -la"
                       },
                       "continue": {
+                        "description": "Stops excecution if command fails, otherwise proceeds with next command",
                         "type": "boolean"
                       },
                       "envs": {
@@ -127,10 +132,41 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Returns array of command results. If a command returned JSON it will be included as JSON object.",
+            "description": "List of executed commands.",
             "schema": {
               "type": "object",
-              "additionalProperties": false
+              "properties": {
+                "bash": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "success",
+                      "result"
+                    ],
+                    "properties": {
+                      "result": {
+                        "additionalProperties": false
+                      },
+                      "success": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "examples": {
+              "bash": [
+                {
+                  "result": null,
+                  "success": true
+                },
+                {
+                  "result": null,
+                  "success": true
+                }
+              ]
             }
           },
           "default": {
@@ -159,7 +195,8 @@ func init() {
               "runtime-envs": "[\n{{- range $index, $element := .Item.Envs }}\n{{- if $index}},{{- end}}\n\"{{ $element.Name }}={{ $element.Value }}\"\n{{- end }}\n]\n",
               "silent": "{{ .Item.Silent }}"
             }
-          ]
+          ],
+          "output": "{\n  \"bash\": {{ index . 0 | toJson }}\n}\n"
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -168,24 +205,23 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: env\n            envs:\n            - name: HELLO",
-            "title": "Basic",
-            "value": "world"
+            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: ls -la",
+            "title": "Basic"
           },
           {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: 'bash -c \"echo { \\\\\\\"hello\\\\\\\": \\\\\\\"world\\\\\\\" } \u003e data.json\"'\n          - command: cat data.json",
+            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      files:\n      - name: hello.sh\n        data: \u003e-\n          #!/bin/bash\n          echo \"Hello World\"\n        mode: '0755'\n      commands:\n      - command: ./hello.sh",
+            "title": "Using ad-hoc files"
+          },
+          {
+            "content": "- id: bash \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: 'bash -c \"echo { \\\\\\\"hello\\\\\\\": \\\\\\\"world\\\\\\\" } \u003e data.json\"'\n      - command: cat data.json",
             "title": "Return JSON file"
           },
           {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          files:\n          - name: run.sh\n            data: |\n              #!/bin/bash\n              echo \"HELLO\"\n            mode: \"0755\"\n          commands:\n          - command: ./run.sh",
-            "title": "Run Script"
-          },
-          {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n          - command: cat myfile.txt",
+            "content": "- id: bash \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n      - command: cat myfile.txt",
             "title": "Pipe"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: bash\n    image: gcr.io/direktiv/apps/bash:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n- id: bash\n  image: gcr.io/direktiv/apps/bash:1.0\n  type: knative-workflow"
       },
       "delete": {
         "parameters": [
@@ -246,16 +282,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Simple bash function.",
+    "description": "Run bash in Direktiv",
     "title": "bash",
     "version": "1.0",
     "x-direktiv-meta": {
-      "category": "Unknown",
+      "categories": [
+        "unknown"
+      ],
       "container": "gcr.io/direktiv/apps/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "The bash function is providing bash with pre-installed packages like jq, yq, curl, git and more.",
-      "maintainer": "[direktiv.io](https://www.direktiv.io)",
+      "long-description": "Run bash in Direktiv as a function bash -c ubuntu 22.04",
+      "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/bash"
     }
   },
@@ -265,12 +303,14 @@ func init() {
         "parameters": [
           {
             "type": "string",
+            "default": "development",
             "description": "direktiv action id is an UUID. \nFor development it can be set to 'development'\n",
             "name": "Direktiv-ActionID",
             "in": "header"
           },
           {
             "type": "string",
+            "default": "/tmp",
             "description": "direktiv temp dir is the working directory for that request\nFor development it can be set to e.g. '/tmp'\n",
             "name": "Direktiv-TempDir",
             "in": "header"
@@ -279,32 +319,27 @@ func init() {
             "name": "body",
             "in": "body",
             "schema": {
-              "type": "object",
-              "properties": {
-                "commands": {
-                  "description": "Array of bash commands.",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/CommandsItems0"
-                  }
-                },
-                "files": {
-                  "description": "File to create before running commands.",
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/definitions/direktivFile"
-                  }
-                }
-              }
+              "$ref": "#/definitions/postParamsBody"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "Returns array of command results. If a command returned JSON it will be included as JSON object.",
+            "description": "List of executed commands.",
             "schema": {
-              "type": "object",
-              "additionalProperties": false
+              "$ref": "#/definitions/postOKBody"
+            },
+            "examples": {
+              "bash": [
+                {
+                  "result": null,
+                  "success": true
+                },
+                {
+                  "result": null,
+                  "success": true
+                }
+              ]
             }
           },
           "default": {
@@ -333,7 +368,8 @@ func init() {
               "runtime-envs": "[\n{{- range $index, $element := .Item.Envs }}\n{{- if $index}},{{- end}}\n\"{{ $element.Name }}={{ $element.Value }}\"\n{{- end }}\n]\n",
               "silent": "{{ .Item.Silent }}"
             }
-          ]
+          ],
+          "output": "{\n  \"bash\": {{ index . 0 | toJson }}\n}\n"
         },
         "x-direktiv-errors": {
           "io.direktiv.command.error": "Command execution failed",
@@ -342,24 +378,23 @@ func init() {
         },
         "x-direktiv-examples": [
           {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: env\n            envs:\n            - name: HELLO",
-            "title": "Basic",
-            "value": "world"
+            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: ls -la",
+            "title": "Basic"
           },
           {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: 'bash -c \"echo { \\\\\\\"hello\\\\\\\": \\\\\\\"world\\\\\\\" } \u003e data.json\"'\n          - command: cat data.json",
+            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      files:\n      - name: hello.sh\n        data: \u003e-\n          #!/bin/bash\n          echo \"Hello World\"\n        mode: '0755'\n      commands:\n      - command: ./hello.sh",
+            "title": "Using ad-hoc files"
+          },
+          {
+            "content": "- id: bash \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: 'bash -c \"echo { \\\\\\\"hello\\\\\\\": \\\\\\\"world\\\\\\\" } \u003e data.json\"'\n      - command: cat data.json",
             "title": "Return JSON file"
           },
           {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          files:\n          - name: run.sh\n            data: |\n              #!/bin/bash\n              echo \"HELLO\"\n            mode: \"0755\"\n          commands:\n          - command: ./run.sh",
-            "title": "Run Script"
-          },
-          {
-            "content": "- id: bash \n      type: action\n      action:\n        function: bash\n        input: \n          commands:\n          - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n          - command: cat myfile.txt",
+            "content": "- id: bash \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n      - command: cat myfile.txt",
             "title": "Pipe"
           }
         ],
-        "x-direktiv-function": "functions:\n  - id: bash\n    image: gcr.io/direktiv/apps/bash:1.0\n    type: knative-workflow"
+        "x-direktiv-function": "functions:\n- id: bash\n  image: gcr.io/direktiv/apps/bash:1.0\n  type: knative-workflow"
       },
       "delete": {
         "parameters": [
@@ -382,55 +417,6 @@ func init() {
     }
   },
   "definitions": {
-    "CommandsItems0": {
-      "type": "object",
-      "properties": {
-        "command": {
-          "description": "Command to run",
-          "type": "string",
-          "example": "ls -la"
-        },
-        "continue": {
-          "type": "boolean"
-        },
-        "envs": {
-          "description": "Environment variables set for each command.",
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/CommandsItems0EnvsItems0"
-          },
-          "example": [
-            {
-              "name": "MYVALUE",
-              "value": "hello"
-            }
-          ]
-        },
-        "print": {
-          "description": "If set to false the command will not print the full command with arguments to logs.",
-          "type": "boolean",
-          "default": true
-        },
-        "silent": {
-          "description": "If set to false the command will not print output to logs.",
-          "type": "boolean",
-          "default": false
-        }
-      }
-    },
-    "CommandsItems0EnvsItems0": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "description": "Name of the variable.",
-          "type": "string"
-        },
-        "value": {
-          "description": "Value of the variable.",
-          "type": "string"
-        }
-      }
-    },
     "direktivFile": {
       "type": "object",
       "x-go-type": {
@@ -454,6 +440,106 @@ func init() {
           "type": "string"
         }
       }
+    },
+    "postOKBody": {
+      "type": "object",
+      "properties": {
+        "bash": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/postOKBodyBashItems"
+          }
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postOKBodyBashItems": {
+      "type": "object",
+      "required": [
+        "success",
+        "result"
+      ],
+      "properties": {
+        "result": {
+          "additionalProperties": false
+        },
+        "success": {
+          "type": "boolean"
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postParamsBody": {
+      "type": "object",
+      "properties": {
+        "commands": {
+          "description": "Array of commands.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/postParamsBodyCommandsItems"
+          }
+        },
+        "files": {
+          "description": "File to create before running commands.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/direktivFile"
+          }
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postParamsBodyCommandsItems": {
+      "type": "object",
+      "properties": {
+        "command": {
+          "description": "Command to run",
+          "type": "string",
+          "example": "ls -la"
+        },
+        "continue": {
+          "description": "Stops excecution if command fails, otherwise proceeds with next command",
+          "type": "boolean"
+        },
+        "envs": {
+          "description": "Environment variables set for each command.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/postParamsBodyCommandsItemsEnvsItems"
+          },
+          "example": [
+            {
+              "name": "MYVALUE",
+              "value": "hello"
+            }
+          ]
+        },
+        "print": {
+          "description": "If set to false the command will not print the full command with arguments to logs.",
+          "type": "boolean",
+          "default": true
+        },
+        "silent": {
+          "description": "If set to false the command will not print output to logs.",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "x-go-gen-location": "operations"
+    },
+    "postParamsBodyCommandsItemsEnvsItems": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Name of the variable.",
+          "type": "string"
+        },
+        "value": {
+          "description": "Value of the variable.",
+          "type": "string"
+        }
+      },
+      "x-go-gen-location": "operations"
     }
   }
 }`))

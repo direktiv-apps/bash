@@ -2,7 +2,7 @@
 
 // Package restapi bash
 //
-//  Simple bash function.
+//  Run bash in Direktiv
 //  Schemes:
 //    http
 //  Host: localhost

@@ -1,0 +1,43 @@
+url: ""
+functions:
+- type: knative-workflow
+  id: bash
+  image: gcr.io/direktiv/apps/bash:test
+states:
+- id: state0
+  type: action
+  action:
+    function: bash
+    input:
+      commands:
+      - command: ls -la
+  transition: state1
+- id: state1
+  type: action
+  action:
+    function: bash
+    input:
+      commands:
+      - command: ./hello.sh
+      files:
+      - data: '#!/bin/bash echo "Hello World"'
+        mode: "0755"
+        name: hello.sh
+  transition: state2
+- id: state2
+  type: action
+  action:
+    function: bash
+    input:
+      commands:
+      - command: 'bash -c "echo { \\\"hello\\\": \\\"world\\\" } > data.json"'
+      - command: cat data.json
+  transition: state3
+- id: state3
+  type: action
+  action:
+    function: bash
+    input:
+      commands:
+      - command: bash -c 'echo "File Data" > myfile.txt'
+      - command: cat myfile.txt

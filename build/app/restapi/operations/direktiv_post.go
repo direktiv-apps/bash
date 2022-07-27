@@ -3,12 +3,14 @@ package operations
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"sync"
 
 	"github.com/direktiv/apps/go/pkg/apps"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 
-	"bash/models"
+	"app/models"
 )
 
 const (
@@ -36,13 +38,18 @@ type accParams struct {
 }
 
 type accParamsTemplate struct {
-	PostBody
+	models.PostParamsBody
 	Commands    []interface{}
 	DirektivDir string
 }
 
+type ctxInfo struct {
+	cf        context.CancelFunc
+	cancelled bool
+}
+
 func PostDirektivHandle(params PostParams) middleware.Responder {
-	var resp interface{}
+	resp := &models.PostOKBody{}
 
 	var (
 		err  error
@@ -56,8 +63,13 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	}
 
 	ctx, cancel := context.WithCancel(params.HTTPRequest.Context())
-	sm.Store(*params.DirektivActionID, cancel)
-	defer sm.Delete(params.DirektivActionID)
+
+	sm.Store(*params.DirektivActionID, &ctxInfo{
+		cancel,
+		false,
+	})
+
+	defer sm.Delete(*params.DirektivActionID)
 
 	var responses []interface{}
 
@@ -69,23 +81,46 @@ func PostDirektivHandle(params PostParams) middleware.Responder {
 	}
 
 	ret, err = runCommand0(ctx, accParams, ri)
+
 	responses = append(responses, ret)
 
 	// if foreach returns an error there is no continue
+	cont = false
 
 	if err != nil && !cont {
+
 		errName := cmdErr
+
+		// if the delete function added the cancel tag
+		ci, ok := sm.Load(*params.DirektivActionID)
+		if ok {
+			cinfo, ok := ci.(*ctxInfo)
+			if ok && cinfo.cancelled {
+				errName = "direktiv.actionCancelled"
+				err = fmt.Errorf("action got cancel request")
+			}
+		}
+
 		return generateError(errName, err)
 	}
 
 	paramsCollector = append(paramsCollector, ret)
 	accParams.Commands = paramsCollector
 
-	responseBytes, err := json.Marshal(responses)
+	s, err := templateString(`{
+  "bash": {{ index . 0 | toJson }}
+}
+`, responses)
 	if err != nil {
 		return generateError(outErr, err)
 	}
-	err = json.Unmarshal(responseBytes, &resp)
+
+	responseBytes := []byte(s)
+
+	// validate
+	resp.UnmarshalBinary(responseBytes)
+	err = resp.Validate(strfmt.Default)
+
 	if err != nil {
 		return generateError(outErr, err)
 	}
@@ -103,9 +138,11 @@ type LoopStruct0 struct {
 func runCommand0(ctx context.Context,
 	params accParams, ri *apps.RequestInfo) ([]map[string]interface{}, error) {
 
-	ri.Logger().Infof("foreach command over .Commands")
-
 	var cmds []map[string]interface{}
+
+	if params.Body == nil {
+		return cmds, nil
+	}
 
 	for a := range params.Body.Commands {
 

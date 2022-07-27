@@ -1,19 +1,22 @@
 swagger: "2.0"
 info:
-  description: Simple bash function.
+  description: Run bash in Direktiv
   title: bash
   version: "1.0"
   x-direktiv-meta:
     container: gcr.io/direktiv/apps/bash
     maintainer: |-
-      [direktiv.io](https://www.direktiv.io)
+      [direktiv.io](https://www.direktiv.io) 
     issues: https://github.com/direktiv-apps/bash/issues
-    url: https://github.com/direktiv-apps/bash 
+    url: https://github.com/direktiv-apps/bash  
     categories:
-    - scripting
+    - unknown
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
-    long-description: The bash function is providing bash with pre-installed packages like jq, yq, curl, git and more.
+    long-description: >-
+      Run bash in Direktiv as a function
+      bash -c
+      ubuntu 22.04
 consumes:
 - application/json
 produces:
@@ -39,12 +42,14 @@ paths:
         - name: Direktiv-ActionID
           in: header
           type: string
+          default: development
           description: |
             direktiv action id is an UUID. 
             For development it can be set to 'development'
         - name: Direktiv-TempDir
           in: header
           type: string
+          default: /tmp
           description: |
             direktiv temp dir is the working directory for that request
             For development it can be set to e.g. '/tmp'
@@ -60,7 +65,7 @@ paths:
                 description: File to create before running commands.
               commands:
                 type: array
-                description: Array of bash commands.
+                description: Array of commands.
                 items:
                   type: object
                   properties:
@@ -78,6 +83,7 @@ paths:
                       default: true
                     continue: 
                       type: boolean
+                      description: Stops excecution if command fails, otherwise proceeds with next command 
                     envs:
                       type: array
                       description: Environment variables set for each command.
@@ -96,57 +102,55 @@ paths:
       # direktiv code generation is configured here
       x-direktiv-function: |-
         functions:
-          - id: bash
-            image: gcr.io/direktiv/apps/bash:1.0
-            type: knative-workflow
+        - id: bash
+          image: gcr.io/direktiv/apps/bash:1.0
+          type: knative-workflow
       x-direktiv-examples:
+        # ADD MORE EXAMPLES HERE
         - title: Basic
           content: |-
-            - id: bash 
-                  type: action
-                  action:
-                    function: bash
-                    input: 
-                      commands:
-                      - command: env
-                        envs:
-                        - name: HELLO
-          value: world
+            - id: bash
+              type: action
+              action:
+                function: bash
+                input: 
+                  commands:
+                  - command: ls -la
+        - title: Using ad-hoc files
+          content: |-
+            - id: bash
+              type: action
+              action:
+                function: bash
+                input: 
+                  files:
+                  - name: hello.sh
+                    data: >-
+                      #!/bin/bash
+                      echo "Hello World"
+                    mode: '0755'
+                  commands:
+                  - command: ./hello.sh
         - title: Return JSON file
           content: |-
             - id: bash 
-                  type: action
-                  action:
-                    function: bash
-                    input: 
-                      commands:
-                      - command: 'bash -c "echo { \\\"hello\\\": \\\"world\\\" } > data.json"'
-                      - command: cat data.json
-        - title: Run Script
-          content: |-
-            - id: bash 
-                  type: action
-                  action:
-                    function: bash
-                    input: 
-                      files:
-                      - name: run.sh
-                        data: |
-                          #!/bin/bash
-                          echo "HELLO"
-                        mode: "0755"
-                      commands:
-                      - command: ./run.sh
+              type: action
+              action:
+                function: bash
+                input: 
+                  commands:
+                  - command: 'bash -c "echo { \\\"hello\\\": \\\"world\\\" } > data.json"'
+                  - command: cat data.json
         - title: Pipe
           content: |-
             - id: bash 
-                  type: action
-                  action:
-                    function: bash
-                    input: 
-                      commands:
-                      - command: bash -c 'echo "File Data" > myfile.txt'
-                      - command: cat myfile.txt
+              type: action
+              action:
+                function: bash
+                input: 
+                  commands:
+                  - command: bash -c 'echo "File Data" > myfile.txt'
+                  - command: cat myfile.txt
       x-direktiv:  
         cmds:
         - action: foreach
@@ -162,16 +166,38 @@ paths:
             "{{ $element.Name }}={{ $element.Value }}"
             {{- end }}
             ]
+        output: |
+          {
+            "bash": {{ index . 0 | toJson }}
+          }
       x-direktiv-errors:
         io.direktiv.command.error: Command execution failed
         io.direktiv.output.error: Template error for output generation of the service
         io.direktiv.ri.error: Can not create information object from request
       responses:
         200:
-          description: Returns array of command results. If a command returned JSON it will be included as JSON object.
+          description: List of executed commands.
+          examples:
+            bash:
+            - result: # EXAMPLE RESULT HERE
+              success: true
+            - result: #  EXAMPLE RESULT HERE
+              success: true
           schema:
             type: object
-            additionalProperties: {}
+            properties:
+              bash:
+                type: array
+                items:
+                  type: object
+                  required:
+                  - success
+                  - result
+                  properties:
+                    success:
+                      type: boolean
+                    result:
+                      additionalProperties: {}
         default:
           description: generic error response
           headers:
