@@ -20,7 +20,9 @@ states:
       commands:
       - command: ./hello.sh
       files:
-      - data: '#!/bin/bash echo "Hello World"'
+      - data: |-
+          #!/bin/bash
+          echo "Hello World"
         mode: "0755"
         name: hello.sh
   transition: state2

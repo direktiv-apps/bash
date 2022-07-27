@@ -2,7 +2,7 @@
 
 // Package restapi bash
 //
-//  Run bash in Direktiv
+//  Ubuntu bash environment
 //  Schemes:
 //    http
 //  Host: localhost

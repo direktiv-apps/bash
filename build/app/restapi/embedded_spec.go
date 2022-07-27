@@ -29,17 +29,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Run bash in Direktiv",
+    "description": "Ubuntu bash environment",
     "title": "bash",
     "version": "1.0",
     "x-direktiv-meta": {
       "categories": [
-        "unknown"
+        "build",
+        "misc"
       ],
       "container": "gcr.io/direktiv/apps/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "Run bash in Direktiv as a function bash -c ubuntu 22.04",
+      "long-description": "This function provides a Ubuntu 22.04 environment. The following packages are installed:\n\n- git \n- sed \n- wget \n- grep \n- curl \n- make \n- jq \n- openssh-client\nThe function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g.  ` + "`" + `bash -c 'cd dir \u0026\u0026 cat file.txt \u003e newfile'` + "`" + `",
       "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/bash"
     }
@@ -161,10 +162,6 @@ func init() {
                 {
                   "result": null,
                   "success": true
-                },
-                {
-                  "result": null,
-                  "success": true
                 }
               ]
             }
@@ -209,7 +206,7 @@ func init() {
             "title": "Basic"
           },
           {
-            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      files:\n      - name: hello.sh\n        data: \u003e-\n          #!/bin/bash\n          echo \"Hello World\"\n        mode: '0755'\n      commands:\n      - command: ./hello.sh",
+            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      files:\n      - name: hello.sh\n        data: |-\n          #!/bin/bash\n          echo \"Hello World\"\n        mode: '0755'\n      commands:\n      - command: ./hello.sh",
             "title": "Using ad-hoc files"
           },
           {
@@ -217,7 +214,7 @@ func init() {
             "title": "Return JSON file"
           },
           {
-            "content": "- id: bash \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n      - command: cat myfile.txt",
+            "content": "- id: bash  \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n      - command: cat myfile.txt",
             "title": "Pipe"
           }
         ],
@@ -282,17 +279,18 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "Run bash in Direktiv",
+    "description": "Ubuntu bash environment",
     "title": "bash",
     "version": "1.0",
     "x-direktiv-meta": {
       "categories": [
-        "unknown"
+        "build",
+        "misc"
       ],
       "container": "gcr.io/direktiv/apps/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
-      "long-description": "Run bash in Direktiv as a function bash -c ubuntu 22.04",
+      "long-description": "This function provides a Ubuntu 22.04 environment. The following packages are installed:\n\n- git \n- sed \n- wget \n- grep \n- curl \n- make \n- jq \n- openssh-client\nThe function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g.  ` + "`" + `bash -c 'cd dir \u0026\u0026 cat file.txt \u003e newfile'` + "`" + `",
       "maintainer": "[direktiv.io](https://www.direktiv.io) ",
       "url": "https://github.com/direktiv-apps/bash"
     }
@@ -331,10 +329,6 @@ func init() {
             },
             "examples": {
               "bash": [
-                {
-                  "result": null,
-                  "success": true
-                },
                 {
                   "result": null,
                   "success": true
@@ -382,7 +376,7 @@ func init() {
             "title": "Basic"
           },
           {
-            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      files:\n      - name: hello.sh\n        data: \u003e-\n          #!/bin/bash\n          echo \"Hello World\"\n        mode: '0755'\n      commands:\n      - command: ./hello.sh",
+            "content": "- id: bash\n  type: action\n  action:\n    function: bash\n    input: \n      files:\n      - name: hello.sh\n        data: |-\n          #!/bin/bash\n          echo \"Hello World\"\n        mode: '0755'\n      commands:\n      - command: ./hello.sh",
             "title": "Using ad-hoc files"
           },
           {
@@ -390,7 +384,7 @@ func init() {
             "title": "Return JSON file"
           },
           {
-            "content": "- id: bash \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n      - command: cat myfile.txt",
+            "content": "- id: bash  \n  type: action\n  action:\n    function: bash\n    input: \n      commands:\n      - command: bash -c 'echo \"File Data\" \u003e myfile.txt'\n      - command: cat myfile.txt",
             "title": "Pipe"
           }
         ],

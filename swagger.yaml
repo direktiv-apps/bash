@@ -1,6 +1,6 @@
 swagger: "2.0"
 info:
-  description: Run bash in Direktiv
+  description: Ubuntu bash environment
   title: bash
   version: "1.0"
   x-direktiv-meta:
@@ -10,13 +10,33 @@ info:
     issues: https://github.com/direktiv-apps/bash/issues
     url: https://github.com/direktiv-apps/bash  
     categories:
-    - unknown
+    - build
+    - misc
     license: |-
       [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
     long-description: >-
-      Run bash in Direktiv as a function
-      bash -c
-      ubuntu 22.04
+      This function provides a Ubuntu 22.04 environment. The following packages are installed:
+
+
+      - git 
+      
+      - sed 
+      
+      - wget 
+      
+      - grep 
+      
+      - curl 
+      
+      - make 
+      
+      - jq 
+      
+      - openssh-client
+
+      The function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g. 
+      `bash -c 'cd dir && cat file.txt > newfile'`
+
 consumes:
 - application/json
 produces:
@@ -98,7 +118,7 @@ paths:
                             type: string
                           value:
                             description: Value of the variable.
-                            type: string         
+                            type: string    
       # direktiv code generation is configured here
       x-direktiv-function: |-
         functions:
@@ -106,7 +126,6 @@ paths:
           image: gcr.io/direktiv/apps/bash:1.0
           type: knative-workflow
       x-direktiv-examples:
-        # ADD MORE EXAMPLES HERE
         - title: Basic
           content: |-
             - id: bash
@@ -125,7 +144,7 @@ paths:
                 input: 
                   files:
                   - name: hello.sh
-                    data: >-
+                    data: |-
                       #!/bin/bash
                       echo "Hello World"
                     mode: '0755'
@@ -143,7 +162,7 @@ paths:
                   - command: cat data.json
         - title: Pipe
           content: |-
-            - id: bash 
+            - id: bash  
               type: action
               action:
                 function: bash
@@ -180,8 +199,6 @@ paths:
           examples:
             bash:
             - result: # EXAMPLE RESULT HERE
-              success: true
-            - result: #  EXAMPLE RESULT HERE
               success: true
           schema:
             type: object

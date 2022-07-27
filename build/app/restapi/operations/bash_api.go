@@ -51,7 +51,7 @@ func NewBashAPI(spec *loads.Document) *BashAPI {
 	}
 }
 
-/*BashAPI Run bash in Direktiv */
+/*BashAPI Ubuntu bash environment */
 type BashAPI struct {
 	spec            *loads.Document
 	context         *middleware.Context
