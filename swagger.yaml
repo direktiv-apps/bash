@@ -4,7 +4,7 @@ info:
   title: bash
   version: "1.0"
   x-direktiv-meta:
-    container: gcr.io/direktiv/apps/bash
+    container: direktiv.azurecr.io/functions/bash
     maintainer: |-
       [direktiv.io](https://www.direktiv.io) 
     issues: https://github.com/direktiv-apps/bash/issues
@@ -124,7 +124,7 @@ paths:
       x-direktiv-function: |-
         functions:
         - id: bash
-          image: gcr.io/direktiv/apps/bash:1.0
+          image: direktiv.azurecr.io/functions/bash:1.0
           type: knative-workflow
       x-direktiv-examples:
         - title: Basic
