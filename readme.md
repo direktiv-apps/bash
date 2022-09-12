@@ -5,7 +5,7 @@ Ubuntu bash environment
 
 ---
 - #### Categories: build, misc
-- #### Image: direktiv.azurecr.io/functions/bash 
+- #### Image: gcr.io/direktiv/functions/bash 
 - #### License: [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 - #### Issue Tracking: https://github.com/direktiv-apps/bash/issues
 - #### URL: https://github.com/direktiv-apps/bash
@@ -32,7 +32,7 @@ The function can run multiple commands but if multiple commands have to be chain
 ```yaml
 functions:
 - id: bash
-  image: direktiv.azurecr.io/functions/bash:1.0
+  image: gcr.io/direktiv/functions/bash:1.0
   type: knative-workflow
 ```
    #### Basic

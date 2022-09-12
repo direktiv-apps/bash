@@ -37,7 +37,7 @@ func init() {
         "build",
         "misc"
       ],
-      "container": "direktiv.azurecr.io/functions/bash",
+      "container": "gcr.io/direktiv/functions/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This function provides a Ubuntu 22.04 environment. The following packages are installed:\n\n- git \n- sed \n- wget \n- grep \n- curl \n- make \n- jq \n- openssh-client\n\nThe function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g.  ` + "`" + `bash -c 'cd dir \u0026\u0026 cat file.txt \u003e newfile'` + "`" + `",
@@ -224,7 +224,7 @@ func init() {
             "title": "Pipe"
           }
         ],
-        "x-direktiv-function": "functions:\n- id: bash\n  image: direktiv.azurecr.io/functions/bash:1.0\n  type: knative-workflow"
+        "x-direktiv-function": "functions:\n- id: bash\n  image: gcr.io/direktiv/functions/bash:1.0\n  type: knative-workflow"
       },
       "delete": {
         "parameters": [
@@ -293,7 +293,7 @@ func init() {
         "build",
         "misc"
       ],
-      "container": "direktiv.azurecr.io/functions/bash",
+      "container": "gcr.io/direktiv/functions/bash",
       "issues": "https://github.com/direktiv-apps/bash/issues",
       "license": "[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)",
       "long-description": "This function provides a Ubuntu 22.04 environment. The following packages are installed:\n\n- git \n- sed \n- wget \n- grep \n- curl \n- make \n- jq \n- openssh-client\n\nThe function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g.  ` + "`" + `bash -c 'cd dir \u0026\u0026 cat file.txt \u003e newfile'` + "`" + `",
@@ -400,7 +400,7 @@ func init() {
             "title": "Pipe"
           }
         ],
-        "x-direktiv-function": "functions:\n- id: bash\n  image: direktiv.azurecr.io/functions/bash:1.0\n  type: knative-workflow"
+        "x-direktiv-function": "functions:\n- id: bash\n  image: gcr.io/direktiv/functions/bash:1.0\n  type: knative-workflow"
       },
       "delete": {
         "parameters": [
