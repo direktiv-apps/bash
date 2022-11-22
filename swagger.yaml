@@ -34,6 +34,8 @@ info:
       
       - openssh-client
 
+      - yq
+
 
       The function can run multiple commands but if multiple commands have to be chained together or use pipes it requires a 'bash -c' command, e.g. 
       `bash -c 'cd dir && cat file.txt > newfile'`
